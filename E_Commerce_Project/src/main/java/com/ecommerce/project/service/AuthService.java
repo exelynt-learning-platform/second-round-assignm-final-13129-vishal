@@ -8,6 +8,7 @@ import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 
 import com.ecommerce.project.dto.AuthRequest;
+import com.ecommerce.project.entity.Role;
 import com.ecommerce.project.entity.User;
 import com.ecommerce.project.repository.UserRepository;
 import com.ecommerce.project.security.JwtUtil;
@@ -27,7 +28,7 @@ public class AuthService {
     // REGISTER
     public void register(User user) {
         user.setPassword(encoder.encode(user.getPassword()));
-        user.setRole("ROLE_USER");
+        user.setRole(Role.ROLE_USER);
         repo.save(user);
     }
 

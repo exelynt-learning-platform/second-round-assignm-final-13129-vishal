@@ -1,21 +1,26 @@
 package com.ecommerce.project.security;
 
-import io.jsonwebtoken.*;
-import io.jsonwebtoken.security.Keys;
+import java.security.Key;
+import java.util.Base64;
+import java.util.Date;
+
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Component;
 
-import java.security.Key;
-import java.util.Date;
-import java.util.Base64;
+import io.jsonwebtoken.Jwts;
+import io.jsonwebtoken.security.Keys;
 
 @Component
 public class JwtUtil {
 
     // 🔐 FIXED SECRET (must be >= 256 bits)
-    private static final String SECRET_STRING = "mysecretkeymysecretkeymysecretkey123456"; // 32+ chars
+//    private static final String SECRET_STRING = "mysecretkeymysecretkeymysecretkey123456"; // 32+ chars
 
+    @Value("${jwt.secret}")
+    private String secret;
+    
     private final Key SECRET_KEY = Keys.hmacShaKeyFor(
-            Base64.getEncoder().encode(SECRET_STRING.getBytes())
+            Base64.getEncoder().encode(secret.getBytes())
     );
 
     // 🔐 Generate Token

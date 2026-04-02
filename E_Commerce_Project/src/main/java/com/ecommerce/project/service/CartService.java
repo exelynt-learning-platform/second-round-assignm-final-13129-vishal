@@ -47,7 +47,14 @@ public class CartService {
     }
 
     // REMOVE ITEM
-    public void remove(Long id) {
+    public void remove(Long id, User user) {
+        CartItem item = repo.findById(id)
+                .orElseThrow(() -> new RuntimeException("Cart item not found"));
+
+        // 🔴 SECURITY CHECK
+        if (!item.getUser().getId().equals(user.getId())) {
+            throw new RuntimeException("Unauthorized access to cart item");
+        }
         repo.deleteById(id);
     }
 }
