@@ -13,6 +13,7 @@ import org.springframework.web.bind.annotation.RestController;
 
 import com.ecommerce.project.service.OrderService;
 import com.ecommerce.project.service.PaymentService;
+import com.stripe.exception.SignatureVerificationException;
 import com.stripe.model.Event;
 import com.stripe.model.PaymentIntent;
 import com.stripe.net.Webhook;
@@ -46,10 +47,29 @@ public class PaymentController {
 	        @RequestBody String payload,
 	        @RequestHeader("Stripe-Signature") String sigHeader) {
 
-	    try {
-	        Event event = Webhook.constructEvent(payload, sigHeader, endpointSecret);
+	    Event event;
 
-	        System.out.println("Stripe event: " + event.getType());
+	    try {
+	        //  STRICT signature verification
+	        event = Webhook.constructEvent(payload, sigHeader, endpointSecret);
+	    } catch (SignatureVerificationException e) {
+	        // ❌ Invalid signature → possible attack
+	        return ResponseEntity.status(400).body("Invalid signature");
+	    } catch (Exception e) {
+	        return ResponseEntity.status(400).body("Webhook error");
+	    }
+
+	    //  Only allow specific events
+	    String eventType = event.getType();
+
+	    if (!eventType.equals("payment_intent.succeeded") &&
+	        !eventType.equals("payment_intent.payment_failed")) {
+
+	        return ResponseEntity.ok("Event ignored");
+	    }
+
+	    try {
+	        System.out.println("Stripe event: " + eventType);
 
 	        PaymentIntent intent = (PaymentIntent) event.getDataObjectDeserializer()
 	                .getObject().orElse(null);
@@ -66,17 +86,16 @@ public class PaymentController {
 
 	        Long orderId = Long.parseLong(orderIdStr);
 
-	        if ("payment_intent.succeeded".equals(event.getType())) {
+	        if ("payment_intent.succeeded".equals(eventType)) {
 	            orderService.updatePaymentStatus(orderId, "PAID");
-	        } else if ("payment_intent.payment_failed".equals(event.getType())) {
+	        } else if ("payment_intent.payment_failed".equals(eventType)) {
 	            orderService.updatePaymentStatus(orderId, "FAILED");
 	        }
 
 	    } catch (Exception e) {
-	        return ResponseEntity.badRequest().body("Webhook error: " + e.getMessage());
+	        return ResponseEntity.status(500).body("Processing error");
 	    }
 
 	    return ResponseEntity.ok("Success");
-	}
-	
+	}	
 }

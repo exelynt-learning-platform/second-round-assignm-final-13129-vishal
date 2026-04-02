@@ -64,9 +64,22 @@ public class OrderService {
     }
     
     public void updatePaymentStatus(Long orderId, String status) {
-    	if (!List.of("CREATED", "PAID", "FAILED").contains(status)) {
-    	    throw new RuntimeException("Invalid status");
-    	}
-    }
-    
+
+        if (!List.of("CREATED", "PAID", "FAILED").contains(status)) {
+            throw new RuntimeException("Invalid status");
+        }
+
+        Order order = orderRepo.findById(orderId)
+                .orElseThrow(() -> new RuntimeException("Order not found"));
+
+        // Idempotency check
+        if ("PAID".equals(order.getStatus())) {
+            return;
+        }
+
+        // Update status
+        order.setStatus(status);
+
+        orderRepo.save(order);
+    }    
 }

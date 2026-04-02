@@ -13,9 +13,6 @@ import io.jsonwebtoken.security.Keys;
 @Component
 public class JwtUtil {
 
-    // 🔐 FIXED SECRET (must be >= 256 bits)
-//    private static final String SECRET_STRING = "mysecretkeymysecretkeymysecretkey123456"; // 32+ chars
-
     @Value("${jwt.secret}")
     private String secret;
     
@@ -23,7 +20,7 @@ public class JwtUtil {
             Base64.getEncoder().encode(secret.getBytes())
     );
 
-    // 🔐 Generate Token
+    //  Generate Token
     public String generateToken(String email) {
         return Jwts.builder()
                 .setSubject(email)
@@ -33,7 +30,7 @@ public class JwtUtil {
                 .compact();
     }
 
-    // 🔍 Extract Email
+    //  Extract Email
     public String extractEmail(String token) {
         return Jwts.parserBuilder()
                 .setSigningKey(SECRET_KEY)
