@@ -64,8 +64,15 @@ public class SecurityConfig {
             "GET", "POST", "PUT", "DELETE", "OPTIONS"
         ));
 
-        config.setAllowedHeaders(java.util.List.of("*"));
-
+        config.setAllowedHeaders(java.util.List.of(
+        	    "Authorization",
+        	    "Content-Type"
+        	));
+        
+        config.setExposedHeaders(java.util.List.of(
+                "Authorization"
+            ));
+        
         config.setAllowCredentials(true);
 
         org.springframework.web.cors.UrlBasedCorsConfigurationSource source =
