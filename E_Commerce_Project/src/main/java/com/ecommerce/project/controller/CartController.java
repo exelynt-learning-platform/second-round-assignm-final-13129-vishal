@@ -32,38 +32,44 @@ public class CartController {
     @PostMapping
     public CartItem add(@RequestBody CartItem item, Authentication auth) {
 
-        String email = auth.getName();
-
-        User user = userRepository.findByEmail(email)
-                .orElseThrow(() -> new RuntimeException("User not found"));
+        User user = getLoggedInUser(auth);
 
         item.setUser(user);
 
         return service.add(item);
     }
-
+    
     // GET CART
     @GetMapping
     public List<CartItem> get(Authentication auth) {
 
-        String email = auth.getName();
-
-        User user = userRepository.findByEmail(email)
-                .orElseThrow(() -> new RuntimeException("User not found"));
+        User user = getLoggedInUser(auth);
 
         return service.get(user);
     }
-
+    
     // DELETE ITEM
     @DeleteMapping("/{id}")
     public String remove(@PathVariable Long id, Authentication auth) {
 
-        String email = auth.getName();
-
-        User user = userRepository.findByEmail(email)
-                .orElseThrow(() -> new RuntimeException("User not found"));
+        User user = getLoggedInUser(auth);
 
         service.remove(id, user);
 
         return "Item Removed";
-    }}
+    }
+    
+    //	helper method for user
+    private User getLoggedInUser(Authentication auth) {
+
+        if (auth == null || !auth.isAuthenticated()) {
+            throw new RuntimeException("User not authenticated");
+        }
+
+        String email = auth.getName();
+
+        return userRepository.findByEmail(email)
+                .orElseThrow(() -> new RuntimeException("User not found"));
+    }
+    
+}
