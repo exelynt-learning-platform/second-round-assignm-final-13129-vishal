@@ -25,7 +25,9 @@ public class SecurityConfig {
             .csrf(csrf -> csrf.disable())
             .authorizeHttpRequests(auth -> auth
                 .requestMatchers("/auth/**").permitAll()
-                .requestMatchers("/products/**").hasRole("ADMIN") // allow for testing
+                .requestMatchers(org.springframework.http.HttpMethod.POST, "/products/**").hasRole("ADMIN")
+                .requestMatchers(org.springframework.http.HttpMethod.PUT, "/products/**").hasRole("ADMIN")
+                .requestMatchers(org.springframework.http.HttpMethod.DELETE, "/products/**").hasRole("ADMIN")
                 .requestMatchers("/cart/**").authenticated()
                 .requestMatchers("/orders/**").authenticated()
                 .requestMatchers("/payment/**").authenticated()
