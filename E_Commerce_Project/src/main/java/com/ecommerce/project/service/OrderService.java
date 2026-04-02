@@ -62,4 +62,11 @@ public class OrderService {
     public List<Order> getOrders(User user) {
         return orderRepo.findByUserId(user.getId());
     }
+    
+    public void updatePaymentStatus(Long orderId, String status) {
+    	if (!List.of("CREATED", "PAID", "FAILED").contains(status)) {
+    	    throw new RuntimeException("Invalid status");
+    	}
+    }
+    
 }
