@@ -38,7 +38,10 @@ public class CartController {
     // GET CART
     @GetMapping
     public List<CartItem> get(Authentication auth) {
-        User user = (User) auth.getPrincipal();
+
+    	String email = (String) auth.getPrincipal();
+        User user = userRepository.findByEmail(email)
+                .orElseThrow(() -> new RuntimeException("User not found"));
         return service.get(user);
     }
 
