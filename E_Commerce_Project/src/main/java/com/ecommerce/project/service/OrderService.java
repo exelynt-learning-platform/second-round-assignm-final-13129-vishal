@@ -25,7 +25,7 @@ public class OrderService {
     // PLACE ORDER FROM CART
     public Order placeOrder(User user, String address) {
 
-        List<CartItem> cartItems = cartRepo.findByUserId(user.getId());
+        List<CartItem> cartItems = cartRepo.findByUser_Id(user.getId());
 
         if (cartItems.isEmpty()) {
             throw new RuntimeException("Cart is empty");
